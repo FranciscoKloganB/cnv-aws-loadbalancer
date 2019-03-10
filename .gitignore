@@ -1,0 +1,7 @@
+
+*.prefs
+server/.classpath
+.project
+.vscode/settings.json
+
+bin/
