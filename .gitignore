@@ -5,3 +5,5 @@ server/.classpath
 .vscode/settings.json
 
 bin/
+
+*.iml
