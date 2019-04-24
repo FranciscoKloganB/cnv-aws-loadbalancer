@@ -74,6 +74,7 @@ public class WebServer {
 			File responseFile = null;
 			try {
 				final BufferedImage outputImg = s.solveImage();
+				ThreadMapper.sendCountToDB();
 				final String outPath = ap.getOutputDirectory();
 				final String imageName = s.toString();
 				if(ap.isDebugging()) {
