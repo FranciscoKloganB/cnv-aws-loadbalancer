@@ -15,6 +15,8 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import hillClimbing.database.ClimbRequestCostEntry;
+import hillClimbing.instrumentation.ThreadMapper;
 import hillClimbing.solver.Solver;
 import hillClimbing.solver.SolverArgumentParser;
 import hillClimbing.solver.SolverFactory;
@@ -66,6 +68,7 @@ public class WebServer {
 			}
 
 			System.out.println("> Finished parsing args.");
+			ThreadMapper.updateEntry(new ClimbRequestCostEntry(ap));
 
 			final Solver s = SolverFactory.getInstance().makeSolver(ap);
 			File responseFile = null;
