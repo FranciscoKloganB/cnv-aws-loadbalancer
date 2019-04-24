@@ -40,12 +40,11 @@ public class Instrument {
                         Instruction instr = (Instruction) instructions.nextElement();
                         int opcode = instr.getOpcode();
                         short instr_type = InstructionTable.InstructionTypeTable[opcode];
-                        if (instr_type == InstructionTable.CONSTANT_INSTRUCTION) {
-                            instr.addBefore("hillClimbing.instrumentation/ThreadMapper", "updateConstInstrCount", null);
+                        if (instr_type == InstructionTable.LOAD_INSTRUCTION) {
+                            instr.addBefore("hillClimbing/instrumentation/ThreadMapper", "updateLoadInstrCount", 0);
                         }
                     }
                 }
-                ci.addAfter("hillClimbing.instrumentation/ThreadMapper", "sendCountToDB", null);
                 ci.write(out_filename);
             }
         }
