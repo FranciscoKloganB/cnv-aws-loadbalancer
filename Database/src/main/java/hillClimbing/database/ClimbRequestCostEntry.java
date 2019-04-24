@@ -28,6 +28,14 @@ public class ClimbRequestCostEntry {
         yUpperLeftPoint = ap.getY0();
         xLowerRightPoint = ap.getX1();
         yLowerRightPoint = ap.getY1();
+        key = hill + "_" +
+                strategy + "_" +
+                xStartPoint + "_" +
+                yStartPoint + "_" +
+                xUpperLeftPoint + "_" +
+                yUpperLeftPoint + "_" +
+                xLowerRightPoint + "_" +
+                yLowerRightPoint;
     }
 
     @DynamoDBHashKey(attributeName = "key")
@@ -118,5 +126,20 @@ public class ClimbRequestCostEntry {
 
     public void setyLowerRightPoint(Integer yLowerRightPoint) {
         this.yLowerRightPoint = yLowerRightPoint;
+    }
+
+    @Override
+    public String toString() {
+        return "ClimbRequestCostEntry{" +
+                "instructions=" + instructions +
+                ", hill='" + hill + '\'' +
+                ", strategy='" + strategy + '\'' +
+                ", xStartPoint=" + xStartPoint +
+                ", yStartPoint=" + yStartPoint +
+                ", xUpperLeftPoint=" + xUpperLeftPoint +
+                ", yUpperLeftPoint=" + yUpperLeftPoint +
+                ", xLowerRightPoint=" + xLowerRightPoint +
+                ", yLowerRightPoint=" + yLowerRightPoint +
+                '}';
     }
 }
