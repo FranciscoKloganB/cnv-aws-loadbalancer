@@ -8,5 +8,5 @@ bin/
 
 *.iml
 .idea
-*java
+*.class
 */target
