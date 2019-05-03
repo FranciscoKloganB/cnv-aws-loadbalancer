@@ -39,7 +39,7 @@ public class Instrument {
                     for (Enumeration instructions = (routine.getInstructionArray()).elements(); instructions.hasMoreElements(); ) {
                         Instruction instr = (Instruction) instructions.nextElement();
                         int opcode = instr.getOpcode();
-                        short instr_type = InstructionTable.InstructionTypeTable[opcode];
+                        int instr_type = InstructionTable.InstructionTypeTable[opcode];
                         instr.addBefore("hillClimbing/instrumentation/ThreadMapper", "TESTUpdateInstrCount", instr_type);
 //                        if (instr_type == InstructionTable.LOAD_INSTRUCTION) {
 //                            instr.addBefore("hillClimbing/instrumentation/ThreadMapper", "updateLoadInstrCount", 0);
