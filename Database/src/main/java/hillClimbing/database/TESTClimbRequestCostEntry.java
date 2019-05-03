@@ -26,13 +26,6 @@ public class TESTClimbRequestCostEntry {
     private Long INSTRUCTIONCHECK_INSTRUCTION;
     private Long MONITOR_INSTRUCTION;
 
-    private Integer xStartPoint;
-    private Integer yStartPoint;
-    private Integer xUpperLeftPoint;
-    private Integer yUpperLeftPoint;
-    private Integer xLowerRightPoint;
-    private Integer yLowerRightPoint;
-
     public TESTClimbRequestCostEntry(String key) {
         this.key = key;
     }
@@ -46,183 +39,169 @@ public class TESTClimbRequestCostEntry {
         this.key = key;
     }
 
-    @DynamoDBAttribute(attributeName = "xStartPoint")
-    public Integer getxStartPoint() {
-        return xStartPoint;
+    @DynamoDBAttribute(attributeName = "NOP_INSTRUCTION")
+    public Long getNOP_INSTRUCTION() {
+        return NOP_INSTRUCTION;
     }
 
-    public void setxStartPoint(Integer xStartPoint) {
-        this.xStartPoint = xStartPoint;
+    public void setNOPInstruction(Long value) {
+        this.NOP_INSTRUCTION = value;
     }
 
-    @DynamoDBAttribute(attributeName = "yStartPoint")
-    public Integer getyStartPoint() {
-        return yStartPoint;
+    @DynamoDBAttribute(attributeName = "CONSTANT_INSTRUCTION")
+    public Long getCONSTANT_INSTRUCTION() {
+        return CONSTANT_INSTRUCTION;
     }
 
-    public void setyStartPoint(Integer yStartPoint) {
-        this.yStartPoint = yStartPoint;
+    public void setConstantInstruction(Long value) {
+        this.CONSTANT_INSTRUCTION = value;
     }
 
-    @DynamoDBAttribute(attributeName = "xUpperLeftPoint")
-    public Integer getxUpperLeftPoint() {
-        return xUpperLeftPoint;
+    @DynamoDBAttribute(attributeName = "LOAD_INSTRUCTION")
+    public Long getLOAD_INSTRUCTION() {
+        return LOAD_INSTRUCTION;
     }
 
-    public void setxUpperLeftPoint(Integer xUpperLeftPoint) {
-        this.xUpperLeftPoint = xUpperLeftPoint;
+    public void setLoadInstruction(Long value) {
+        this.LOAD_INSTRUCTION = value;
     }
 
-    @DynamoDBAttribute(attributeName = "yUpperLeftPoint")
-    public Integer getyUpperLeftPoint() {
-        return yUpperLeftPoint;
+    @DynamoDBAttribute(attributeName = "STORE_INSTRUCTION")
+    public Long getSTORE_INSTRUCTION() {
+        return STORE_INSTRUCTION;
     }
 
-    public void setyUpperLeftPoint(Integer yUpperLeftPoint) {
-        this.yUpperLeftPoint = yUpperLeftPoint;
+    public void setStoreInstruction(Long value) {
+        this.STORE_INSTRUCTION = value;
     }
 
-    @DynamoDBAttribute(attributeName = "xLowerRightPoint")
-    public Integer getxLowerRightPoint() {
-        return xLowerRightPoint;
+    @DynamoDBAttribute(attributeName = "STACK_INSTRUCTION")
+    public Long getSTACK_INSTRUCTION() {
+        return STACK_INSTRUCTION;
     }
 
-    public void setxLowerRightPoint(Integer xLowerRightPoint) {
-        this.xLowerRightPoint = xLowerRightPoint;
+    public void setStackInstruction(Long value) {
+        this.STACK_INSTRUCTION = value;
     }
 
-    @DynamoDBAttribute(attributeName = "yLowerRightPoint")
-    public Integer getyLowerRightPoint() {
-        return yLowerRightPoint;
+    @DynamoDBAttribute(attributeName = "ARITHMETIC_INSTRUCTION")
+    public Long getARITHMETIC_INSTRUCTION() {
+        return ARITHMETIC_INSTRUCTION;
     }
 
-    public void setyLowerRightPoint(Integer yLowerRightPoint) {
-        this.yLowerRightPoint = yLowerRightPoint;
+    public void setArithmeticInstruction(Long value) {
+        this.ARITHMETIC_INSTRUCTION = value;
+    }
+
+    @DynamoDBAttribute(attributeName = "LOGICAL_INSTRUCTION")
+    public Long getLOGICAL_INSTRUCTION() {
+        return LOGICAL_INSTRUCTION;
+    }
+
+    public void setLogicalInstruction(Long value) {
+        this.LOGICAL_INSTRUCTION = value;
+    }
+
+    @DynamoDBAttribute(attributeName = "CONVERSION_INSTRUCTION")
+    public Long getCONVERSION_INSTRUCTION() {
+        return CONVERSION_INSTRUCTION;
+    }
+
+    public void setConversionInstruction(Long value) {
+        this.CONVERSION_INSTRUCTION = value;
+    }
+
+    @DynamoDBAttribute(attributeName = "COMPARISON_INSTRUCTION")
+    public Long getCOMPARISON_INSTRUCTION() {
+        return COMPARISON_INSTRUCTION;
+    }
+
+    public void setComparisonInstruction(Long value) {
+        this.COMPARISON_INSTRUCTION = value;
+    }
+
+    @DynamoDBAttribute(attributeName = "CONDITIONAL_INSTRUCTION")
+    public Long getCONDITIONAL_INSTRUCTION() {
+        return CONDITIONAL_INSTRUCTION;
+    }
+
+    public void setConditionalInstruction(Long value) {
+        this.CONDITIONAL_INSTRUCTION = value;
+    }
+
+    @DynamoDBAttribute(attributeName = "UNCONDITIONAL_INSTRUCTION")
+    public Long getUNCONDITIONAL_INSTRUCTION() {
+        return UNCONDITIONAL_INSTRUCTION;
+    }
+
+    public void setUnconditionalInstruction(Long value) {
+        this.UNCONDITIONAL_INSTRUCTION = value;
+    }
+
+    @DynamoDBAttribute(attributeName = "CLASS_INSTRUCTION")
+    public Long getCLASS_INSTRUCTION() {
+        return CLASS_INSTRUCTION;
+    }
+
+    public void setClassInstruction(Long value) {
+        this.CLASS_INSTRUCTION = value;
+    }
+
+    @DynamoDBAttribute(attributeName = "OBJECT_INSTRUCTION")
+    public Long getOBJECT_INSTRUCTION() {
+        return OBJECT_INSTRUCTION;
+    }
+
+    public void setObjectInstruction(Long value) {
+        this.OBJECT_INSTRUCTION = value;
+    }
+
+    @DynamoDBAttribute(attributeName = "EXCEPTION_INSTRUCTION")
+    public Long getEXCEPTION_INSTRUCTION() {
+        return EXCEPTION_INSTRUCTION;
+    }
+
+    public void setExceptionInstruction(Long value) {
+        this.EXCEPTION_INSTRUCTION = value;
+    }
+
+    @DynamoDBAttribute(attributeName = "INSTRUCTIONCHECK_INSTRUCTION")
+    public Long getINSTRUCTIONCHECK_INSTRUCTION() {
+        return INSTRUCTIONCHECK_INSTRUCTION;
+    }
+    public void setInstructionCheckInstruction(Long value) {
+        this.INSTRUCTIONCHECK_INSTRUCTION = value;
+    }
+
+    @DynamoDBAttribute(attributeName = "MONITOR_INSTRUCTION")
+    public Long getMONITOR_INSTRUCTION() {
+        return MONITOR_INSTRUCTION;
+    }
+
+    public void setMonitorInstruction(Long value) {
+        this.MONITOR_INSTRUCTION = value;
     }
 
     @Override
     public String toString() {
         return "TESTClimbRequestCostEntry{" +
                 "key='" + key + '\'' +
-                ", xStartPoint=" + xStartPoint +
-                ", yStartPoint=" + yStartPoint +
-                ", xUpperLeftPoint=" + xUpperLeftPoint +
-                ", yUpperLeftPoint=" + yUpperLeftPoint +
-                ", xLowerRightPoint=" + xLowerRightPoint +
-                ", yLowerRightPoint=" + yLowerRightPoint +
+                ", NOP_INSTRUCTION=" + NOP_INSTRUCTION +
+                ", CONSTANT_INSTRUCTION=" + CONSTANT_INSTRUCTION +
+                ", LOAD_INSTRUCTION=" + LOAD_INSTRUCTION +
+                ", STORE_INSTRUCTION=" + STORE_INSTRUCTION +
+                ", STACK_INSTRUCTION=" + STACK_INSTRUCTION +
+                ", ARITHMETIC_INSTRUCTION=" + ARITHMETIC_INSTRUCTION +
+                ", LOGICAL_INSTRUCTION=" + LOGICAL_INSTRUCTION +
+                ", CONVERSION_INSTRUCTION=" + CONVERSION_INSTRUCTION +
+                ", COMPARISON_INSTRUCTION=" + COMPARISON_INSTRUCTION +
+                ", CONDITIONAL_INSTRUCTION=" + CONDITIONAL_INSTRUCTION +
+                ", UNCONDITIONAL_INSTRUCTION=" + UNCONDITIONAL_INSTRUCTION +
+                ", CLASS_INSTRUCTION=" + CLASS_INSTRUCTION +
+                ", OBJECT_INSTRUCTION=" + OBJECT_INSTRUCTION +
+                ", EXCEPTION_INSTRUCTION=" + EXCEPTION_INSTRUCTION +
+                ", INSTRUCTIONCHECK_INSTRUCTION=" + INSTRUCTIONCHECK_INSTRUCTION +
+                ", MONITOR_INSTRUCTION=" + MONITOR_INSTRUCTION +
                 '}';
-    }
-
-    public void setNOPInstruction(Long value) {
-
-    }
-
-    public void setConstantInstruction(Long value) {
-    }
-
-    public void setLoadInstruction(Long value) {
-    }
-
-    public void setStoreInstruction(Long value) {
-    }
-
-    public void setStackInstruction(Long value) {
-    }
-
-    public void setArithmeticInstruction(Long value) {
-    }
-
-    public void setLogicalInstruction(Long value) {
-    }
-
-    public void setConversionInstruction(Long value) {
-    }
-
-    public void setComparisonInstruction(Long value) {
-    }
-
-    public void setConditionalInstruction(Long value) {
-    }
-
-    public void setUnconditionalInstruction(Long value) {
-    }
-
-    public void setClassInstruction(Long value) {
-    }
-
-    public void setObjectInstruction(Long value) {
-    }
-
-    public void setExceptionInstruction(Long value) {
-    }
-
-    public void setInstructionCheckInstruction(Long value) {
-    }
-
-    public void setMonitorInstruction(Long value) {
-    }
-
-    public Long getNOP_INSTRUCTION() {
-        return NOP_INSTRUCTION;
-    }
-
-    public Long getCONSTANT_INSTRUCTION() {
-        return CONSTANT_INSTRUCTION;
-    }
-
-    public Long getLOAD_INSTRUCTION() {
-        return LOAD_INSTRUCTION;
-    }
-
-    public Long getSTORE_INSTRUCTION() {
-        return STORE_INSTRUCTION;
-    }
-
-    public Long getSTACK_INSTRUCTION() {
-        return STACK_INSTRUCTION;
-    }
-
-    public Long getARITHMETIC_INSTRUCTION() {
-        return ARITHMETIC_INSTRUCTION;
-    }
-
-    public Long getLOGICAL_INSTRUCTION() {
-        return LOGICAL_INSTRUCTION;
-    }
-
-    public Long getCONVERSION_INSTRUCTION() {
-        return CONVERSION_INSTRUCTION;
-    }
-
-    public Long getCOMPARISON_INSTRUCTION() {
-        return COMPARISON_INSTRUCTION;
-    }
-
-    public Long getCONDITIONAL_INSTRUCTION() {
-        return CONDITIONAL_INSTRUCTION;
-    }
-
-    public Long getUNCONDITIONAL_INSTRUCTION() {
-        return UNCONDITIONAL_INSTRUCTION;
-    }
-
-    public Long getCLASS_INSTRUCTION() {
-        return CLASS_INSTRUCTION;
-    }
-
-    public Long getOBJECT_INSTRUCTION() {
-        return OBJECT_INSTRUCTION;
-    }
-
-    public Long getEXCEPTION_INSTRUCTION() {
-        return EXCEPTION_INSTRUCTION;
-    }
-
-    public Long getINSTRUCTIONCHECK_INSTRUCTION() {
-        return INSTRUCTIONCHECK_INSTRUCTION;
-    }
-
-    public Long getMONITOR_INSTRUCTION() {
-        return MONITOR_INSTRUCTION;
     }
 }
