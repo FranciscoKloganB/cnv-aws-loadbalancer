@@ -30,7 +30,7 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>target/classes/</outputDirectory>
+                            <outputDirectory>target/classes/lib</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

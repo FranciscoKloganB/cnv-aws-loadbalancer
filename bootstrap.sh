@@ -7,4 +7,4 @@ cp -r Utils/target/classes out/
 cp -r WebServer/target/classes out/
 
 java -cp out/classes hillClimbing.instrumentation.Instrument out/classes/hillClimbing/solver out/classes/hillClimbing/solver
-java -XX:-UseSplitVerifier -cp out/classes hillClimbing.webServer.WebServer
+java -XX:-UseSplitVerifier -cp out/classes:out/classes/lib/* hillClimbing.webServer.WebServer
