@@ -39,10 +39,10 @@ public class ThreadMapper {
         try {
             ClimbRequestCostEntry entry = requestCostEntryMapPerThread.get(threadID);
             entry.setInstructions(loadInstrCount);
-            FileWriter fw = new FileWriter(new File("./" + threadID + '-' + entry.getKey().replace("/", "?") + ".count"), true);
-            fw.write(entry.toString());
-            fw.close();
-            //Database.getDatabase().insert(entry);
+//            FileWriter fw = new FileWriter(new File("./" + threadID + '-' + entry.getKey().replace("/", "?") + ".count"), true);
+//            fw.write(entry.toString());
+//            fw.close();
+            Database.insert(entry);
         } catch (Exception e) {
             e.printStackTrace();
         }
