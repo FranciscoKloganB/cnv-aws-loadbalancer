@@ -49,4 +49,9 @@ public class Database {
         checkIfInit();
         mapper.save(entry);
     }
+
+    public static void TESTInsert(TESTClimbRequestCostEntry entry) {
+        checkIfInit();
+        mapper.save(entry);
+    }
 }

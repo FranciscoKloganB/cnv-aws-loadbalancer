@@ -40,6 +40,7 @@ public class Instrument {
                         Instruction instr = (Instruction) instructions.nextElement();
                         int opcode = instr.getOpcode();
                         short instr_type = InstructionTable.InstructionTypeTable[opcode];
+                        instr.addBefore("hillClimbing/instrumentation/ThreadMapper", "TESTUpdateInstrCount", instr_type);
                         if (instr_type == InstructionTable.LOAD_INSTRUCTION) {
                             instr.addBefore("hillClimbing/instrumentation/ThreadMapper", "updateLoadInstrCount", 0);
                         }
