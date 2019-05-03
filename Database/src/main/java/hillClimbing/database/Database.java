@@ -1,6 +1,5 @@
 package hillClimbing.database;
 
-import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
@@ -23,7 +22,6 @@ public class Database {
         Database.client = AmazonDynamoDBClientBuilder
                 .standard()
                 .withRegion(AWS_REGION)
-                .withCredentials(new InstanceProfileCredentialsProvider(false))
                 .build();
 
         Database.mapper = new DynamoDBMapper(client);
