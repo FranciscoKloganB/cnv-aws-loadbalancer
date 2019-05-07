@@ -105,6 +105,21 @@ public class ThreadMapper {
         requestCostEntryMapPerThread.put(threadID, null);
     }
 
+    public static synchronized void TESTSendTime(long timeDiff) {
+        Long threadID = Thread.currentThread().getId();
+        Long loadInstrCount = 0L;
+        try {
+            ClimbRequestCostEntry entry = requestCostEntryMapPerThread.get(threadID);
+            entry.setInstructions(loadInstrCount);
+            Database.TESTUpdate(entry.getKey(), timeDiff);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        instructionsPerThread.put(threadID, 0L);
+        requestCostEntryMapPerThread.put(threadID, null);
+    }
+
     public static synchronized void updateLoadInstrCount(int _) {
         Long threadID = Thread.currentThread().getId();
         Long loadInstrCount = 0L;
@@ -126,9 +141,6 @@ public class ThreadMapper {
         try {
             ClimbRequestCostEntry entry = requestCostEntryMapPerThread.get(threadID);
             entry.setInstructions(loadInstrCount);
-//            FileWriter fw = new FileWriter(new File("./" + threadID + '-' + entry.getKey().replace("/", "?") + ".count"), true);
-//            fw.write(entry.toString());
-//            fw.close();
             Database.insert(entry);
         } catch (Exception e) {
             e.printStackTrace();

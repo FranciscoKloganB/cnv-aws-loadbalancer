@@ -73,9 +73,12 @@ public class WebServer {
 			final Solver s = SolverFactory.getInstance().makeSolver(ap);
 			File responseFile = null;
 			try {
+				long before = System.currentTimeMillis();
 				final BufferedImage outputImg = s.solveImage();
+				long after = System.currentTimeMillis();
+				ThreadMapper.TESTSendTime(after - before);
 				//ThreadMapper.sendCountToDB();
-				ThreadMapper.TESTSendCountToDB();
+				//ThreadMapper.TESTSendCountToDB();
 				final String outPath = ap.getOutputDirectory();
 				final String imageName = s.toString();
 				if(ap.isDebugging()) {

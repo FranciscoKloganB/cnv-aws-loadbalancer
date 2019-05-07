@@ -4,7 +4,13 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
+import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
+import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 
 import java.util.HashMap;
 import java.util.List;
@@ -53,5 +59,20 @@ public class Database {
     public static void TESTInsert(TESTClimbRequestCostEntry entry) {
         checkIfInit();
         mapper.save(entry);
+    }
+
+    public static void TESTUpdate(String key, long timeDiff) {
+        checkIfInit();
+
+        DynamoDB dynamoDB = new DynamoDB(client);
+        Table table = dynamoDB.getTable("TESTCNVT17HillClimbDatabase");
+
+        UpdateItemSpec updateItemSpec = new UpdateItemSpec()
+                .withPrimaryKey("key", key)
+                .withUpdateExpression("set time = :time")
+                .withValueMap(new ValueMap().withNumber(":time", timeDiff))
+                .withReturnValues(ReturnValue.UPDATED_NEW);
+
+        UpdateItemOutcome outcome = table.updateItem(updateItemSpec);
     }
 }
