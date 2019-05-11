@@ -14,6 +14,7 @@
         <module>HillClimbing</module>
         <module>Instrumentation</module>
         <module>Database</module>
+        <module>AutoScalerLoadBalancer</module>
     </modules>
 
 
