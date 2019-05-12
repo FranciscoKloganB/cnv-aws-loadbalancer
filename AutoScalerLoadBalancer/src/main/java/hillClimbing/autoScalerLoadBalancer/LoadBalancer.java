@@ -16,53 +16,67 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 
 public class LoadBalancer implements Runnable {
 
-    private static final int LOAD_BALANCER_PORT = 80;
-    private static final int INSTANCE_PORT = 8000;
+    private final int LOAD_BALANCER_PORT;
+    private final int INSTANCE_PORT;
     private static final Map<String, ClimbRequestCostEntry> requestsCache = new HashMap<>();
 
-    public LoadBalancer() {
+    public LoadBalancer(Properties properties) {
+
+        LOAD_BALANCER_PORT = Integer.parseInt(properties.getProperty("loadBalancer.port", "80"));
+        INSTANCE_PORT = Integer.parseInt(properties.getProperty("instance.port", "8000"));
         new Thread(this).start();
     }
 
     public void run() {
         try {
+            log(String.format("Creating server on port: %d", LOAD_BALANCER_PORT));
             final HttpServer server = HttpServer.create(new InetSocketAddress(LOAD_BALANCER_PORT), 0);
             server.createContext("/climb", new Climb());
             server.setExecutor(Executors.newCachedThreadPool());
             server.start();
+            log("Server created");
         } catch (IOException ioe) {
-            printErr("Error while creating the server: " + ioe.getMessage());
+            printErr(String.format("Error while creating the server: %s", ioe.getMessage()));
         }
     }
 
-    static class Climb implements HttpHandler {
+    class Climb implements HttpHandler {
 
         public void handle(HttpExchange t) {
             try {
                 URI uri = t.getRequestURI();
+                log(String.format("Received request [URI = %s] from client [ClientIP = %s]", uri, t.getRemoteAddress()));
                 ClimbRequestCostEntry request = queryToClimbRequestCostEntry(uri.getQuery());
+                log(String.format("Calculating cost of request [URI = %s]", uri));
                 long cost = getCostFromRequest(request);
+                log(String.format("Cost of request [URI = %s]: %d", uri, cost));
+                log("Getting least used instance");
                 Instance instance = InstanceManager.getLeastUsedInstance();
+                log(String.format("Obtained instance [InstanceID = %s]", instance.getInstanceID()));
                 instance.newRequest(cost);
                 InputStream response;
                 try {
+                    log(String.format("Forwarding request [URI = %s] to instance [InstanceID = %s]", uri, instance.getInstanceID()));
                     response = forwardRequestToInstance(instance, uri, cost);
                 } catch (IOException ioe) {
-                    printErr("Error while communicating with instance [InstanceID = " + instance.getInstanceID() + "]: " + ioe.getMessage());
+                    printErr(String.format("Error while communicating with instance [InstanceID = %s]: %s", instance.getInstanceID() , ioe.getMessage()));
                     instance.requestCompleted(cost);
                     return;
                 }
+
+                log(String.format("Forwarding response to request [URI = %s] to client [ClientIP = %s]", uri, t.getRemoteAddress()));
                 sendResponse(t, response);
                 instance.requestCompleted(cost);
-                log("Response sent to client [ClientIP = " + t.getRemoteAddress().toString() + "]");
+                log("Response forwarded to client [ClientIP = " + t.getRemoteAddress() + "]");
             } catch (IOException ioe) {
-                printErr("Error while sending response to client [ClientIP = " + t.getRemoteAddress().toString() + "]: " + ioe.getMessage());
+                printErr(String.format("Error while sending response to client [ClientIP = %s]: %s", t.getRemoteAddress() , ioe.getMessage()));
             } catch (Exception e) {
-                printErr("Error while parsing the arguments: " + e.getMessage());
+                printErr(String.format("Error while parsing the arguments: %s", e.getMessage()));
             }
         }
     }
@@ -89,7 +103,7 @@ public class LoadBalancer implements Runnable {
         return 0;
     }
 
-    private static InputStream forwardRequestToInstance(Instance instance, URI uri, long cost) throws IOException {
+    private InputStream forwardRequestToInstance(Instance instance, URI uri, long cost) throws IOException {
         URL url = new URL(String.format("%s:%d%s", instance.getInstanceIP(), INSTANCE_PORT, uri));
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         return connection.getInputStream();
@@ -113,11 +127,11 @@ public class LoadBalancer implements Runnable {
     }
 
     private static void log(String logMessage) {
-        System.out.println("[Load Balancer - Thread " + Thread.currentThread().getId() + "] " + logMessage);
+        System.out.println(String.format("[Load Balancer - Thread %d] %s", Thread.currentThread().getId(), logMessage));
     }
 
     private static void printErr(String errorMessage) {
-        System.err.println("[Load Balancer - Thread " + Thread.currentThread().getId() + "] " + errorMessage);
+        System.err.println(String.format("[Load Balancer - Thread %d] %s", Thread.currentThread().getId(), errorMessage));
     }
 
 }
