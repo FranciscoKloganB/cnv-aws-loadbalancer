@@ -32,11 +32,11 @@ class Instance {
     }
 
     String getInstanceIP() {
-        return instance.getPrivateIpAddress();
+        return instance != null ? instance.getPrivateIpAddress() : null;
     }
 
     String getInstanceID() {
-        return instance.getInstanceId();
+        return instance != null ? instance.getInstanceId() : null;
     }
 
     synchronized void newRequest(long cost) {
