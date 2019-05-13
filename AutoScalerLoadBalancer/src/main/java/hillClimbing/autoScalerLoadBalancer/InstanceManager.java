@@ -6,6 +6,9 @@ import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
 import com.amazonaws.services.ec2.model.*;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,6 +21,11 @@ class InstanceManager {
     private static String SECURITY_GROUP;
     private static String REGION;
     private static String KEY_PAIR_NAME;
+    private static String PING_URI;
+    private static int INSTANCE_PORT;
+    private static int INSTANCE_BOOT_UP_TIME;
+    private static int PING_TIMEOUT;
+    private static int PING_RETRY_TIME;
 
     private static AmazonEC2 ec2Client;
     private static AmazonCloudWatch cloudWatchClient;
@@ -39,6 +47,11 @@ class InstanceManager {
         SECURITY_GROUP = properties.getProperty("instance.securityGroup", "DEFAULT");
         REGION = properties.getProperty("instance.region", "us-east-1");
         KEY_PAIR_NAME = properties.getProperty("keyPairName", "DEFAULT");
+        PING_URI = properties.getProperty("pingURI", "/ping");
+        INSTANCE_PORT = Integer.parseInt(properties.getProperty("instance.port", "8000"));
+        INSTANCE_BOOT_UP_TIME = Integer.parseInt(properties.getProperty("instance.bootUpTime", "30000"));
+        PING_TIMEOUT = Integer.parseInt(properties.getProperty("instance.pingTimeout", "5000"));
+        PING_RETRY_TIME = Integer.parseInt(properties.getProperty("instance.pingRetryTime", "10000"));
 
         ec2Client = AmazonEC2ClientBuilder.standard()
                 .withRegion(REGION)
@@ -105,7 +118,8 @@ class InstanceManager {
         return runningInstances.size();
     }
 
-    static void launchInstance() {
+    static Instance launchInstance() {
+        Instance instance;
         synchronized (instancesLock) {
             if (stoppedInstances.isEmpty()) {
                 RunInstancesRequest runInstancesRequest = new RunInstancesRequest();
@@ -119,19 +133,21 @@ class InstanceManager {
                         .withIamInstanceProfile(new IamInstanceProfileSpecification().withArn(IAM_INSTANCE_PROFILE_ARN));
 
                 RunInstancesResult runInstancesResult = ec2Client.runInstances(runInstancesRequest);
-                Instance instance = new Instance(runInstancesResult.getReservation().getInstances().get(0));
+                instance = new Instance(runInstancesResult.getReservation().getInstances().get(0));
                 runningInstances.put(instance.getInstanceID(), instance);
             } else {
                 String stoppedInstanceID = (String) stoppedInstances.keySet().toArray()[0];
                 StartInstancesRequest startInstancesRequest = new StartInstancesRequest().withInstanceIds(stoppedInstanceID);
                 StartInstancesResult startInstancesResult = ec2Client.startInstances(startInstancesRequest);
 
-                Instance instance = stoppedInstances.get(stoppedInstanceID);
+                instance = stoppedInstances.get(stoppedInstanceID);
                 instance.setState(startInstancesResult.getStartingInstances().get(0).getCurrentState());
                 runningInstances.put(stoppedInstanceID, instance);
                 stoppedInstances.remove(stoppedInstanceID);
             }
         }
+
+        return instance;
     }
 
     static void launchInstance(int numberOfInstances) {
@@ -171,7 +187,21 @@ class InstanceManager {
     }
 
     static Instance getLeastUsedInstance() {
-        return null;
+        Instance leastUsedInstance = runningInstances.values().stream()
+            .filter(instance ->
+                !instancesToStop.contains(instance.getInstanceID()) &&
+                !instancesToTerminate.contains(instance.getInstanceID()))
+            .min(Comparator.comparing(Instance::getLoad)
+                .thenComparing(Instance::getNoRequests))
+            .orElse(null);
+
+        if (leastUsedInstance == null) {
+            leastUsedInstance = launchInstance();
+
+            waitForInstanceToBeOnline(leastUsedInstance);
+        }
+
+        return leastUsedInstance;
     }
 
     private static void stopInstances() {
@@ -234,6 +264,28 @@ class InstanceManager {
         }
 
         return instances;
+    }
+
+    private static void waitForInstanceToBeOnline(Instance instance) {
+        try {
+            Thread.sleep(INSTANCE_BOOT_UP_TIME);
+            while (true) {
+                try {
+                    URL url = new URL(String.format("%s:%d%s", instance.getInstanceIP(), INSTANCE_PORT, PING_URI));
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setConnectTimeout(PING_TIMEOUT);
+                    connection.connect();
+                    if (connection.getResponseCode() == 200) {
+                        break;
+                    }
+                    Thread.sleep(PING_RETRY_TIME);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void log(String logMessage) {
