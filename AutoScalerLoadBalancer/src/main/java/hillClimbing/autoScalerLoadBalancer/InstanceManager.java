@@ -158,7 +158,11 @@ class InstanceManager {
 
     private static void stopInstances() {
         synchronized (instancesLock) {
-            StopInstancesRequest stopInstancesRequest = new StopInstancesRequest().withInstanceIds(instancesToStop);
+            Set<String> stoppableInstances = instancesToStop.stream()
+                    .filter(instanceID ->
+                            runningInstances.getOrDefault(instanceID, new Instance(null)).stoppable()
+                    ).collect(Collectors.toSet());
+            StopInstancesRequest stopInstancesRequest = new StopInstancesRequest().withInstanceIds(stoppableInstances);
             StopInstancesResult stopInstancesResult = ec2Client.stopInstances(stopInstancesRequest);
             for (InstanceStateChange instanceStateChange : stopInstancesResult.getStoppingInstances()) {
                 if (!runningInstances.containsKey(instanceStateChange.getInstanceId()))
@@ -174,9 +178,13 @@ class InstanceManager {
 
     private static void terminateInstances() {
         synchronized (instancesLock) {
-            TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest().withInstanceIds(instancesToTerminate);
+            Set<String> terminableInstances = instancesToTerminate.stream()
+                    .filter(instanceID ->
+                            runningInstances.getOrDefault(instanceID, new Instance(null)).stoppable()
+                    ).collect(Collectors.toSet());
+            TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest().withInstanceIds(terminableInstances);
             ec2Client.terminateInstances(terminateInstancesRequest);
-            for (String instanceID : instancesToTerminate) {
+            for (String instanceID : terminableInstances) {
                 runningInstances.remove(instanceID);
                 stoppedInstances.remove(instanceID);
             }

@@ -53,4 +53,8 @@ class Instance {
         this.load = 0;
         this.noRequests = 0;
     }
+
+    boolean stoppable() {
+        return load == 0 && noRequests == 0;
+    }
 }
