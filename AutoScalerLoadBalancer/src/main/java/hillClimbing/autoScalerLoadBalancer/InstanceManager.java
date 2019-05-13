@@ -164,6 +164,7 @@ class InstanceManager {
                     ).collect(Collectors.toSet());
             StopInstancesRequest stopInstancesRequest = new StopInstancesRequest().withInstanceIds(stoppableInstances);
             StopInstancesResult stopInstancesResult = ec2Client.stopInstances(stopInstancesRequest);
+            instancesToStop.removeAll(stoppableInstances);
             for (InstanceStateChange instanceStateChange : stopInstancesResult.getStoppingInstances()) {
                 if (!runningInstances.containsKey(instanceStateChange.getInstanceId()))
                     continue;
@@ -184,6 +185,7 @@ class InstanceManager {
                     ).collect(Collectors.toSet());
             TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest().withInstanceIds(terminableInstances);
             ec2Client.terminateInstances(terminateInstancesRequest);
+            instancesToTerminate.removeAll(terminableInstances);
             for (String instanceID : terminableInstances) {
                 runningInstances.remove(instanceID);
                 stoppedInstances.remove(instanceID);
