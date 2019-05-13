@@ -62,16 +62,16 @@ public class LoadBalancer implements Runnable {
                 InputStream response;
                 try {
                     log(String.format("Forwarding request [URI = %s] to instance [InstanceID = %s]", uri, instance.getInstanceID()));
-                    response = forwardRequestToInstance(instance, uri, cost);
+                    response = forwardRequestToInstance(instance, uri);
                 } catch (IOException ioe) {
                     printErr(String.format("Error while communicating with instance [InstanceID = %s]: %s", instance.getInstanceID() , ioe.getMessage()));
                     instance.requestCompleted(cost);
                     return;
                 }
 
+                instance.requestCompleted(cost);
                 log(String.format("Forwarding response to request [URI = %s] to client [ClientIP = %s]", uri, t.getRemoteAddress()));
                 sendResponse(t, response);
-                instance.requestCompleted(cost);
                 log("Response forwarded to client [ClientIP = " + t.getRemoteAddress() + "]");
             } catch (IOException ioe) {
                 printErr(String.format("Error while sending response to client [ClientIP = %s]: %s", t.getRemoteAddress() , ioe.getMessage()));
@@ -103,7 +103,7 @@ public class LoadBalancer implements Runnable {
         return 0;
     }
 
-    private InputStream forwardRequestToInstance(Instance instance, URI uri, long cost) throws IOException {
+    private InputStream forwardRequestToInstance(Instance instance, URI uri) throws IOException {
         URL url = new URL(String.format("%s:%d%s", instance.getInstanceIP(), INSTANCE_PORT, uri));
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         return connection.getInputStream();
