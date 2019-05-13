@@ -1,40 +1,56 @@
 package hillClimbing.autoScalerLoadBalancer;
 
+import com.amazonaws.services.ec2.model.InstanceState;
+
 class Instance {
 
     private com.amazonaws.services.ec2.model.Instance instance;
     private long load;
     private int noRequests;
 
-    public Instance(com.amazonaws.services.ec2.model.Instance instance) {
+    Instance(com.amazonaws.services.ec2.model.Instance instance) {
         this.instance = instance;
         this.load = 0;
         this.noRequests = 0;
     }
 
-    public long getLoad() {
+    long getLoad() {
         return this.load;
     }
 
-    public int getNoRequests() {
+    int getNoRequests() {
         return this.noRequests;
     }
 
-    public String getInstanceIP() {
+
+    void setInstance(com.amazonaws.services.ec2.model.Instance awsInstance) {
+        this.instance = awsInstance;
+    }
+
+    void setState(InstanceState currentState) {
+        this.instance.setState(currentState);
+    }
+
+    String getInstanceIP() {
         return instance.getPrivateIpAddress();
     }
 
-    public String getInstanceID() {
+    String getInstanceID() {
         return instance.getInstanceId();
     }
 
-    public synchronized void newRequest(long cost) {
+    synchronized void newRequest(long cost) {
         this.load += cost;
         this.noRequests++;
     }
 
-    public synchronized void requestCompleted(long cost) {
+    synchronized void requestCompleted(long cost) {
         this.load -= cost;
         this.noRequests--;
+    }
+
+    synchronized void resetCounters() {
+        this.load = 0;
+        this.noRequests = 0;
     }
 }
