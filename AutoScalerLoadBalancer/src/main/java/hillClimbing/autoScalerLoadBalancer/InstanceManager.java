@@ -2,6 +2,10 @@ package hillClimbing.autoScalerLoadBalancer;
 
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClientBuilder;
+import com.amazonaws.services.cloudwatch.model.Datapoint;
+import com.amazonaws.services.cloudwatch.model.Dimension;
+import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
+import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
 import com.amazonaws.services.ec2.model.*;
@@ -183,7 +187,33 @@ class InstanceManager {
     }
     
     static float getGroupCPUUsage() {
-        return 0;
+        float totalPercentage = 0;
+        int instancesChecked = 0;
+
+        Dimension dimension = new Dimension();
+        dimension.setName("InstanceId");
+
+        for (Instance instance : runningInstances.values()) {
+            dimension.setValue(instance.getInstanceID());
+            GetMetricStatisticsRequest getMetricStatisticsRequest = new GetMetricStatisticsRequest()
+                    .withStartTime(new Date(new Date().getTime() - 1000 * 60 * 60))
+                    .withEndTime(new Date())
+                    .withNamespace("AWS/EC2")
+                    .withPeriod(60)
+                    .withDimensions(dimension)
+                    .withMetricName("CPUUtilization")
+                    .withStatistics("Average");
+
+            GetMetricStatisticsResult getMetricStatisticsResult = cloudWatchClient.getMetricStatistics(getMetricStatisticsRequest);
+            List<Datapoint> dataPoints = getMetricStatisticsResult.getDatapoints();
+            Datapoint mostRecentDataPoint = dataPoints.stream().max(Comparator.comparing(Datapoint::getTimestamp)).orElse(null);
+            if (mostRecentDataPoint != null) {
+                totalPercentage += mostRecentDataPoint.getAverage();
+                instancesChecked++;
+            }
+        }
+
+        return instancesChecked != 0 ? totalPercentage/instancesChecked : 0;
     }
 
     static Instance getLeastUsedInstance() {
