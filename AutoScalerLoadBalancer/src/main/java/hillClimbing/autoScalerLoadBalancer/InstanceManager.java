@@ -140,14 +140,32 @@ class InstanceManager {
         }
     }
 
-    static void prepareTerminateInstance(int numberOfInstances) {
-
-    }
-
     static void prepareStopInstance() {
-
+        instancesToStop.add(runningInstances.values().stream()
+                .filter(instance ->
+                        !instancesToStop.contains(instance.getInstanceID()) &&
+                                !instancesToTerminate.contains(instance.getInstanceID()))
+                .min(Comparator.comparing(Instance::getLoad)
+                        .thenComparing(Instance::getNoRequests))
+                .orElse(new Instance(null))
+                .getInstanceID()
+        );
     }
 
+    static void prepareTerminateInstance(int numberOfInstances) {
+        for (int i = 0; i < numberOfInstances; i++) {
+            instancesToTerminate.add(runningInstances.values().stream()
+                .filter(instance ->
+                    !instancesToStop.contains(instance.getInstanceID()) &&
+                    !instancesToTerminate.contains(instance.getInstanceID()))
+                .min(Comparator.comparing(Instance::getLoad)
+                    .thenComparing(Instance::getNoRequests))
+                .orElse(new Instance(null))
+                .getInstanceID()
+            );
+        }
+    }
+    
     static float getGroupCPUUsage() {
         return 0;
     }
