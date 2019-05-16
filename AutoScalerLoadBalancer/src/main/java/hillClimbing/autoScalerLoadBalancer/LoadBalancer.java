@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import hillClimbing.database.ClimbRequestCostEntry;
+import hillClimbing.database.Database;
 import hillClimbing.solver.SolverArgumentParser;
 
 import java.io.*;
@@ -15,6 +16,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executors;
@@ -101,7 +103,22 @@ public class LoadBalancer implements Runnable {
     }
 
     private static long getCostFromRequest(ClimbRequestCostEntry request) {
-        return 0;
+    	
+    	ClimbRequestCostEntry entry;
+    	
+    	if (requestsCache.containsKey(request.getKey())) {
+    		entry = requestsCache.get(request.getKey());
+    	} else {
+	    	List<ClimbRequestCostEntry> costEntries = Database.query(request.getKey());
+	    	if (!costEntries.isEmpty()) {
+	    		entry = costEntries.get(0);
+	    	} else {
+	    		//TODO: Scan for requests similar to this one
+	    		return 0;
+	    	}
+    	}
+    	
+		return entry.getInstructions() != null ? entry.getInstructions() : 0;
     }
 
     private InputStream forwardRequestToInstance(Instance instance, URI uri) throws IOException {

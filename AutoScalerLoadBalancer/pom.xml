@@ -52,6 +52,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-dynamodb</artifactId>
+            <version>1.11.106</version>            
         </dependency>
         <dependency>
             <groupId>CNV-T17</groupId>
