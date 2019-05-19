@@ -53,21 +53,32 @@ public class Database {
     }
 
     public static List<ClimbRequestCostEntry> scanCloseRequests(ClimbRequestCostEntry request) {
-        double similarity = 0.1;
-        int area = (request.getxLowerRightPoint() - request.getxUpperLeftPoint()) *
-                (request.getyLowerRightPoint() - request.getyUpperLeftPoint());
+        double areaSimilarity = 0.1;
+        double startingPointSimilarity = 0.1;
+
+        int mapWidth = request.getxLowerRightPoint() - request.getxUpperLeftPoint();
+        int mapHeight = request.getyLowerRightPoint() - request.getyUpperLeftPoint();
+        int area = mapWidth * mapHeight;
+
 
         Map<String, AttributeValue> eav = new HashMap<>();
         eav.put(":hill", new AttributeValue().withS(request.getHill()));
         eav.put(":strategy", new AttributeValue().withS(request.getStrategy()));
-        eav.put(":minArea", new AttributeValue().withN(Double.toString(area * (1 - similarity))));
-        eav.put(":maxArea", new AttributeValue().withN(Double.toString(area * (1 + similarity))));
+        eav.put(":minArea", new AttributeValue().withN(Double.toString(area * (1 - areaSimilarity))));
+        eav.put(":maxArea", new AttributeValue().withN(Double.toString(area * (1 + areaSimilarity))));
+        eav.put(":minXStartingPoint", new AttributeValue().withN(Double.toString(request.getxStartPoint() - (startingPointSimilarity * mapWidth))));
+        eav.put(":maxXStartingPoint", new AttributeValue().withN(Double.toString(request.getxStartPoint() + (startingPointSimilarity * mapWidth))));
+        eav.put(":minYStartingPoint", new AttributeValue().withN(Double.toString(request.getyStartPoint() - (startingPointSimilarity * mapHeight))));
+        eav.put(":maxYStartingPoint", new AttributeValue().withN(Double.toString(request.getyStartPoint() + (startingPointSimilarity * mapHeight))));
+
 
         DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
                 .withFilterExpression(
                         "strategy = :strategy and" +
                         "(xLowerRightPoint - xUpperLeftPoint) * (yLowerRightPoint - yUpperLeftPoint) >= :minArea and" +
-                        "(xLowerRightPoint - xUpperLeftPoint) * (yLowerRightPoint - yUpperLeftPoint) <= :maxArea")
+                        "(xLowerRightPoint - xUpperLeftPoint) * (yLowerRightPoint - yUpperLeftPoint) <= :maxArea and" +
+                        "xStartPoint >= :minXStartingPoint and xStartPoint <= :maxXStartingPoint" +
+                        "yStartPoint >= :minYStartingPoint and yStartPoint <= :maxYStartingPoint")
                 .withExpressionAttributeValues(eav);
 
         return mapper.scan(ClimbRequestCostEntry.class, scanExpression);
