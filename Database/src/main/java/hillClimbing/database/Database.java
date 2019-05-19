@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
@@ -49,6 +50,27 @@ public class Database {
                 .withExpressionAttributeValues(eav);
 
         return mapper.query(ClimbRequestCostEntry.class, query);
+    }
+
+    public static List<ClimbRequestCostEntry> scanCloseRequests(ClimbRequestCostEntry request) {
+        double similarity = 0.1;
+        int area = (request.getxLowerRightPoint() - request.getxUpperLeftPoint()) *
+                (request.getyLowerRightPoint() - request.getyUpperLeftPoint());
+
+        Map<String, AttributeValue> eav = new HashMap<>();
+        eav.put(":hill", new AttributeValue().withS(request.getHill()));
+        eav.put(":strategy", new AttributeValue().withS(request.getStrategy()));
+        eav.put(":minArea", new AttributeValue().withN(Double.toString(area * (1 - similarity))));
+        eav.put(":maxArea", new AttributeValue().withN(Double.toString(area * (1 + similarity))));
+
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+                .withFilterExpression(
+                        "strategy = :strategy and" +
+                        "(xLowerRightPoint - xUpperLeftPoint) * (yLowerRightPoint - yUpperLeftPoint) >= :minArea and" +
+                        "(xLowerRightPoint - xUpperLeftPoint) * (yLowerRightPoint - yUpperLeftPoint) <= :maxArea")
+                .withExpressionAttributeValues(eav);
+
+        return mapper.scan(ClimbRequestCostEntry.class, scanExpression);
     }
 
     public static void insert(ClimbRequestCostEntry entry) {
