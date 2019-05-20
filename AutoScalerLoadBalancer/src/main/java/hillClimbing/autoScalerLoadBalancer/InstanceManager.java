@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 class InstanceManager {
 
-    //TODO: THIS HAS TO BE SYNC
     private static String AMI_ID;
     private static String IAM_INSTANCE_PROFILE_ARN;
     private static String INSTANCE_TYPE;
@@ -42,34 +41,37 @@ class InstanceManager {
 
     private static final Object instancesLock = new Object();
 
-    public InstanceManager(Properties properties) {
+    InstanceManager(Properties properties) {
 
-        //TODO: Change defaults
-        AMI_ID = properties.getProperty("instance.amiID", "DEFAULT");
-        IAM_INSTANCE_PROFILE_ARN = properties.getProperty("instance.iamProfileARN", "DEFAULT");
-        INSTANCE_TYPE = properties.getProperty("instance.type", "t2.micro");
-        SECURITY_GROUP = properties.getProperty("instance.securityGroup", "DEFAULT");
-        REGION = properties.getProperty("instance.region", "us-east-1");
-        KEY_PAIR_NAME = properties.getProperty("instance.keyPairName", "DEFAULT");
-        PING_URI = properties.getProperty("instance.pingURI", "/ping");
-        INSTANCE_PORT = Integer.parseInt(properties.getProperty("instance.port", "8000"));
-        INSTANCE_BOOT_UP_TIME = Integer.parseInt(properties.getProperty("instance.bootUpTime", "30000"));
-        PING_TIMEOUT = Integer.parseInt(properties.getProperty("instance.pingTimeout", "5000"));
-        PING_RETRY_TIME = Integer.parseInt(properties.getProperty("instance.pingRetryTime", "10000"));
+        try {
+            AMI_ID = properties.getProperty("instance.amiID", "DEFAULT");
+            IAM_INSTANCE_PROFILE_ARN = properties.getProperty("instance.iamProfileARN", "DEFAULT");
+            INSTANCE_TYPE = properties.getProperty("instance.type", "t2.micro");
+            SECURITY_GROUP = properties.getProperty("instance.securityGroup", "DEFAULT");
+            REGION = properties.getProperty("instance.region", "us-east-1");
+            KEY_PAIR_NAME = properties.getProperty("instance.keyPairName", "DEFAULT");
+            PING_URI = properties.getProperty("instance.pingURI", "/ping");
+            INSTANCE_PORT = Integer.parseInt(properties.getProperty("instance.port", "8000"));
+            INSTANCE_BOOT_UP_TIME = Integer.parseInt(properties.getProperty("instance.bootUpTime", "30000"));
+            PING_TIMEOUT = Integer.parseInt(properties.getProperty("instance.pingTimeout", "5000"));
+            PING_RETRY_TIME = Integer.parseInt(properties.getProperty("instance.pingRetryTime", "10000"));
 
-        ec2Client = AmazonEC2ClientBuilder.standard()
-                .withRegion(REGION)
-                .build();
+            ec2Client = AmazonEC2ClientBuilder.standard()
+                    .withRegion(REGION)
+                    .build();
 
-        cloudWatchClient = AmazonCloudWatchClientBuilder.standard()
-                .withRegion(REGION)
-                .build();
+            cloudWatchClient = AmazonCloudWatchClientBuilder.standard()
+                    .withRegion(REGION)
+                    .build();
 
-        runningInstances = new HashMap<>();
-        stoppedInstances = new HashMap<>();
+            runningInstances = new HashMap<>();
+            stoppedInstances = new HashMap<>();
 
-        instancesToStop = new HashSet<>();
-        instancesToTerminate = new HashSet<>();
+            instancesToStop = new HashSet<>();
+            instancesToTerminate = new HashSet<>();
+        }  catch (Exception e) {
+            printErr(String.format("Error initiating module: %s", e.getMessage()));
+        }
     }
 
     static void updateInstances() {
@@ -240,6 +242,9 @@ class InstanceManager {
                     .filter(instanceID ->
                             runningInstances.getOrDefault(instanceID, new Instance(null)).stoppable()
                     ).collect(Collectors.toSet());
+
+            if (stoppableInstances.isEmpty()) {return;}
+
             StopInstancesRequest stopInstancesRequest = new StopInstancesRequest().withInstanceIds(stoppableInstances);
             StopInstancesResult stopInstancesResult = ec2Client.stopInstances(stopInstancesRequest);
             instancesToStop.removeAll(stoppableInstances);
@@ -261,6 +266,9 @@ class InstanceManager {
                     .filter(instanceID ->
                             runningInstances.getOrDefault(instanceID, new Instance(null)).stoppable()
                     ).collect(Collectors.toSet());
+
+            if (terminableInstances.isEmpty()) {return;}
+
             TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest().withInstanceIds(terminableInstances);
             ec2Client.terminateInstances(terminateInstancesRequest);
             instancesToTerminate.removeAll(terminableInstances);

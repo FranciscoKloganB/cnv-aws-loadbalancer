@@ -38,7 +38,7 @@ public class ClimbRequestCostEntry {
                 yLowerRightPoint;
     }
 
-    @DynamoDBHashKey(attributeName = "key")
+    @DynamoDBHashKey(attributeName = "params")
     public String getKey() {
         return key;
     }

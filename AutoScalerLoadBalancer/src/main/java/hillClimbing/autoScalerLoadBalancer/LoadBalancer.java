@@ -23,16 +23,20 @@ import java.util.concurrent.Executors;
 
 public class LoadBalancer implements Runnable {
 
-    private final int IDLE_CONNECTION_TIMEOUT;
-    private final int LOAD_BALANCER_PORT;
-    private final int INSTANCE_PORT;
+    private static int IDLE_CONNECTION_TIMEOUT;
+    private static int LOAD_BALANCER_PORT;
+    private static int INSTANCE_PORT;
     private static final Map<String, ClimbRequestCostEntry> requestsCache = new HashMap<>();
 
-    public LoadBalancer(Properties properties) {
-        IDLE_CONNECTION_TIMEOUT = Integer.parseInt(properties.getProperty("loadBalancer.idleConnectionTimeout", "300000"));
-        LOAD_BALANCER_PORT = Integer.parseInt(properties.getProperty("loadBalancer.port", "80"));
-        INSTANCE_PORT = Integer.parseInt(properties.getProperty("instance.port", "8000"));
-        new Thread(this).start();
+    LoadBalancer(Properties properties) {
+        try {
+            IDLE_CONNECTION_TIMEOUT = Integer.parseInt(properties.getProperty("loadBalancer.idleConnectionTimeout", "300000"));
+            LOAD_BALANCER_PORT = Integer.parseInt(properties.getProperty("loadBalancer.port", "80"));
+            INSTANCE_PORT = Integer.parseInt(properties.getProperty("instance.port", "8000"));
+            new Thread(this).start();
+        } catch (Exception e) {
+            printErr(String.format("Error initiating module: %s", e.getMessage()));
+        }
     }
 
     public void run() {
@@ -44,7 +48,7 @@ public class LoadBalancer implements Runnable {
             server.start();
             log("Server created");
         } catch (IOException ioe) {
-            printErr(String.format("Error while creating the server: %s", ioe.getMessage()));
+            printErr(String.format("Error while booting the server: %s", ioe.getMessage()));
         }
     }
 
@@ -140,7 +144,7 @@ public class LoadBalancer implements Runnable {
     }
 
     private InputStream forwardRequestToInstance(Instance instance, URI uri) throws IOException {
-        URL url = new URL(String.format("%s:%d%s", instance.getInstanceIP(), INSTANCE_PORT, uri));
+        URL url = new URL(String.format("http://%s:%d%s", instance.getInstanceIP(), INSTANCE_PORT, uri));
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setReadTimeout(IDLE_CONNECTION_TIMEOUT);
         return connection.getInputStream();

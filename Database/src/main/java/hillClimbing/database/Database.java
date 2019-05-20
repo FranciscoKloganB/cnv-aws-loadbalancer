@@ -5,13 +5,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.amazonaws.services.dynamodbv2.document.Table;
-import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
-import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
-import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 
 import java.util.HashMap;
 import java.util.List;
@@ -43,10 +37,10 @@ public class Database {
     public static List<ClimbRequestCostEntry> query(String key) {
         checkIfInit();
         Map<String, AttributeValue> eav = new HashMap<>();
-        eav.put(":key", new AttributeValue().withS(key));
+        eav.put(":params", new AttributeValue().withS(key));
 
         DynamoDBQueryExpression<ClimbRequestCostEntry> query = new DynamoDBQueryExpression<ClimbRequestCostEntry>()
-                .withKeyConditionExpression("key = :key")
+                .withKeyConditionExpression("params = :params")
                 .withExpressionAttributeValues(eav);
 
         return mapper.query(ClimbRequestCostEntry.class, query);
@@ -58,14 +52,23 @@ public class Database {
 
         int mapWidth = request.getxLowerRightPoint() - request.getxUpperLeftPoint();
         int mapHeight = request.getyLowerRightPoint() - request.getyUpperLeftPoint();
-        int area = mapWidth * mapHeight;
 
 
         Map<String, AttributeValue> eav = new HashMap<>();
         eav.put(":hill", new AttributeValue().withS(request.getHill()));
         eav.put(":strategy", new AttributeValue().withS(request.getStrategy()));
-        eav.put(":minArea", new AttributeValue().withN(Double.toString(area * (1 - areaSimilarity))));
-        eav.put(":maxArea", new AttributeValue().withN(Double.toString(area * (1 + areaSimilarity))));
+
+        eav.put(":minXLowerRightPoint", new AttributeValue().withN(Double.toString(request.getxLowerRightPoint() - (areaSimilarity * mapWidth))));
+        eav.put(":maxXLowerRightPoint", new AttributeValue().withN(Double.toString(request.getxLowerRightPoint() + (areaSimilarity * mapWidth))));
+        eav.put(":minYLowerRightPoint", new AttributeValue().withN(Double.toString(request.getyLowerRightPoint() - (areaSimilarity * mapHeight))));
+        eav.put(":maxYLowerRightPoint", new AttributeValue().withN(Double.toString(request.getyLowerRightPoint() + (areaSimilarity * mapHeight))));
+
+        eav.put(":minXUpperLeftPoint", new AttributeValue().withN(Double.toString(request.getxUpperLeftPoint() - (areaSimilarity * mapWidth))));
+        eav.put(":maxXUpperLeftPoint", new AttributeValue().withN(Double.toString(request.getxUpperLeftPoint() + (areaSimilarity * mapWidth))));
+        eav.put(":minYUpperLeftPoint", new AttributeValue().withN(Double.toString(request.getyUpperLeftPoint() - (areaSimilarity * mapHeight))));
+        eav.put(":maxYUpperLeftPoint", new AttributeValue().withN(Double.toString(request.getyUpperLeftPoint() + (areaSimilarity * mapHeight))));
+
+
         eav.put(":minXStartingPoint", new AttributeValue().withN(Double.toString(request.getxStartPoint() - (startingPointSimilarity * mapWidth))));
         eav.put(":maxXStartingPoint", new AttributeValue().withN(Double.toString(request.getxStartPoint() + (startingPointSimilarity * mapWidth))));
         eav.put(":minYStartingPoint", new AttributeValue().withN(Double.toString(request.getyStartPoint() - (startingPointSimilarity * mapHeight))));
@@ -74,10 +77,13 @@ public class Database {
 
         DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
                 .withFilterExpression(
-                        "strategy = :strategy and" +
-                        "(xLowerRightPoint - xUpperLeftPoint) * (yLowerRightPoint - yUpperLeftPoint) >= :minArea and" +
-                        "(xLowerRightPoint - xUpperLeftPoint) * (yLowerRightPoint - yUpperLeftPoint) <= :maxArea and" +
-                        "xStartPoint >= :minXStartingPoint and xStartPoint <= :maxXStartingPoint" +
+                        "strategy = :strategy and " +
+                        "hill = :hill and " +
+                        "xLowerRightPoint >= :minXLowerRightPoint and xLowerRightPoint <= :maxXLowerRightPoint and " +
+                        "yLowerRightPoint >= :minYLowerRightPoint and yLowerRightPoint <= :maxYLowerRightPoint and " +
+                        "xUpperLeftPoint >= :minXUpperLeftPoint and xUpperLeftPoint <= :maxXUpperLeftPoint and " +
+                        "yUpperLeftPoint >= :minYUpperLeftPoint and yUpperLeftPoint <= :maxYUpperLeftPoint and " +
+                        "xStartPoint >= :minXStartingPoint and xStartPoint <= :maxXStartingPoint and " +
                         "yStartPoint >= :minYStartingPoint and yStartPoint <= :maxYStartingPoint")
                 .withExpressionAttributeValues(eav);
 
@@ -87,25 +93,5 @@ public class Database {
     public static void insert(ClimbRequestCostEntry entry) {
         checkIfInit();
         mapper.save(entry);
-    }
-
-    public static void TESTInsert(TESTClimbRequestCostEntry entry) {
-        checkIfInit();
-        mapper.save(entry);
-    }
-
-    public static void TESTUpdate(String key, long timeDiff) {
-        checkIfInit();
-
-        DynamoDB dynamoDB = new DynamoDB(client);
-        Table table = dynamoDB.getTable("TESTCNVT17HillClimbDatabase");
-
-        UpdateItemSpec updateItemSpec = new UpdateItemSpec()
-                .withPrimaryKey("key", key)
-                .withUpdateExpression("set time = :time")
-                .withValueMap(new ValueMap().withNumber(":time", timeDiff))
-                .withReturnValues(ReturnValue.UPDATED_NEW);
-
-        UpdateItemOutcome outcome = table.updateItem(updateItemSpec);
     }
 }

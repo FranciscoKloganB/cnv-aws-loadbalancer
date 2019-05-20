@@ -4,24 +4,27 @@ import java.util.Properties;
 
 public class AutoScaler implements Runnable {
 
-    private final int MIN_INSTANCES;
-    private final int MAX_INSTANCES;
-    private final int CHECK_PERIOD;
-    private final int ALARMS_TO_TRIGGER;
-    private final int CPU_TO_UPSCALE;
-    private final int CPU_TO_DOWNSCALE;
+    private static int MIN_INSTANCES;
+    private static int MAX_INSTANCES;
+    private static int CHECK_PERIOD;
+    private static int ALARMS_TO_TRIGGER;
+    private static int CPU_TO_UPSCALE;
+    private static int CPU_TO_DOWNSCALE;
 
 
-    public AutoScaler(Properties properties) {
+    AutoScaler(Properties properties) {
+        try {
+            MIN_INSTANCES = Integer.parseInt(properties.getProperty("autoScaler.minInstances", "1"));
+            MAX_INSTANCES = Integer.parseInt(properties.getProperty("autoScaler.maxInstances", "10"));
+            CHECK_PERIOD = Integer.parseInt(properties.getProperty("autoScaler.checkPeriod", "30000"));
+            ALARMS_TO_TRIGGER = Integer.parseInt(properties.getProperty("autoScaler.alarmsToTrigger", "2"));
+            CPU_TO_UPSCALE = Integer.parseInt(properties.getProperty("autoScaler.cpuToUpscale", "70"));
+            CPU_TO_DOWNSCALE = Integer.parseInt(properties.getProperty("autoScaler.cpuToDownscale", "40"));
 
-        MIN_INSTANCES = Integer.parseInt(properties.getProperty("autoScaler.minInstances", "1"));
-        MAX_INSTANCES = Integer.parseInt(properties.getProperty("autoScaler.maxInstances", "10"));
-        CHECK_PERIOD = Integer.parseInt(properties.getProperty("autoScaler.checkPeriod", "30000"));
-        ALARMS_TO_TRIGGER = Integer.parseInt(properties.getProperty("autoScaler.alarmsToTrigger", "2"));
-        CPU_TO_UPSCALE = Integer.parseInt(properties.getProperty("autoScaler.cpuToUpscale", "70"));
-        CPU_TO_DOWNSCALE = Integer.parseInt(properties.getProperty("autoScaler.cpuToDownscale", "40"));
-
-        new Thread(this).start();
+            new Thread(this).start();
+        } catch (Exception e) {
+            printErr(String.format("Error initiating module: %s", e.getMessage()));
+        }
     }
 
     public void run() {
