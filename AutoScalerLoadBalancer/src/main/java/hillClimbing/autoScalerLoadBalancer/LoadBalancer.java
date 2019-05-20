@@ -112,6 +112,9 @@ public class LoadBalancer implements Runnable {
 	    	List<ClimbRequestCostEntry> costEntries = Database.query(request.getKey());
 	    	if (!costEntries.isEmpty()) {
 	    		entry = costEntries.get(0);
+	    		if (entry.getInstructions() != null) {
+                    requestsCache.put(entry.getKey(), entry);
+                }
 	    	} else {
                 double weightedCostSum = 0;
                 double weightSum = 0;
