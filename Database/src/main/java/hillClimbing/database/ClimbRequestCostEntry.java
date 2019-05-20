@@ -19,6 +19,10 @@ public class ClimbRequestCostEntry {
     private Integer xLowerRightPoint;
     private Integer yLowerRightPoint;
 
+    public ClimbRequestCostEntry() {
+        
+    }
+
     public ClimbRequestCostEntry(SolverArgumentParser ap) {
         hill = ap.getInputImage();
         strategy = ap.getSolverStrategy().toString();
