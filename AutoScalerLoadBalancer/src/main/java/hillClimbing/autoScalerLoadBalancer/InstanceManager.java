@@ -50,8 +50,8 @@ class InstanceManager {
         INSTANCE_TYPE = properties.getProperty("instance.type", "t2.micro");
         SECURITY_GROUP = properties.getProperty("instance.securityGroup", "DEFAULT");
         REGION = properties.getProperty("instance.region", "us-east-1");
-        KEY_PAIR_NAME = properties.getProperty("keyPairName", "DEFAULT");
-        PING_URI = properties.getProperty("pingURI", "/ping");
+        KEY_PAIR_NAME = properties.getProperty("instance.keyPairName", "DEFAULT");
+        PING_URI = properties.getProperty("instance.pingURI", "/ping");
         INSTANCE_PORT = Integer.parseInt(properties.getProperty("instance.port", "8000"));
         INSTANCE_BOOT_UP_TIME = Integer.parseInt(properties.getProperty("instance.bootUpTime", "30000"));
         PING_TIMEOUT = Integer.parseInt(properties.getProperty("instance.pingTimeout", "5000"));

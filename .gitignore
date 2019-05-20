@@ -12,4 +12,4 @@ bin/
 */target
 *.pem
 out/
-*application.propertiesAut
+*application.properties
