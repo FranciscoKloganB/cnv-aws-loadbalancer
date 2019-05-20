@@ -113,8 +113,23 @@ public class LoadBalancer implements Runnable {
 	    	if (!costEntries.isEmpty()) {
 	    		entry = costEntries.get(0);
 	    	} else {
-	    		//TODO: Scan for requests similar to this one
-	    		return 0;
+                double weightedCostSum = 0;
+                double weightSum = 0;
+
+	    	    List<ClimbRequestCostEntry> similarCostEntries = Database.scanCloseRequests(request);
+
+	    	    for (ClimbRequestCostEntry climbRequestCostEntry : similarCostEntries) {
+	    	        if (climbRequestCostEntry.getInstructions() != null) {
+	    	            double weight = 1 / (1 + Math.sqrt(
+	    	                    Math.pow(request.getxStartPoint() - climbRequestCostEntry.getxStartPoint(), 2) +
+                                Math.pow(request.getyStartPoint() - climbRequestCostEntry.getyStartPoint(), 2)));
+
+	    	            weightedCostSum += climbRequestCostEntry.getInstructions() * weight;
+	    	            weightSum += weight;
+                    }
+                }
+
+                return weightSum != 0 ? (long) (weightedCostSum / weightSum) : 0;
 	    	}
     	}
     	
